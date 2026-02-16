@@ -1,0 +1,12 @@
+
+
+services:
+  ros:
+    build: .
+    container_name: ros_dev
+    volumes:
+      - ./src:/app/src
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
