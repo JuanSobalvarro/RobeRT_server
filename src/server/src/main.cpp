@@ -25,7 +25,6 @@ public:
 
         RCLCPP_INFO(this->get_logger(), "Waiting for incoming EGM data on port %d...", EGM_PORT);
 
-        // 2. Start the Control Loop
         // EGM is driven by the robot's clock (incoming packets), so we block-read in a loop.
         // In a real ROS 2 driver, this might run in a separate thread to allow ROS callbacks to spin.
         run_control_loop();
