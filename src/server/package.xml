@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>robert_server</name>
+  <version>0.0.0</version>
+  <description>Server for RobeRT</description>
+  <maintainer email="sobalvarrog.juans@gmail.com">JuanSobalvarro</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>abb_libegm</depend> 
+  <build_depend>protobuf-compiler</build_depend>
+  <build_depend>libprotobuf-dev</build_depend>
+  <exec_depend>libprotobuf-dev</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

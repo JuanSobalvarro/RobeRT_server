@@ -1,1 +1,3 @@
-protoc --cpp_out=. /app/src/proto/egm.proto
+#!/bin/bash
+
+echo "HI!"

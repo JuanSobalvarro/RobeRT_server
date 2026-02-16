@@ -10,7 +10,8 @@ COPY . /app
 RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 RUN echo "if [ -f /app/install/setup.bash ]; then source /app/install/setup.bash; fi" >> ~/.bashrc
 
-# code tasks (proto compilation, etc)
-RUN "/app/src/tasks.sh"
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["/bin/bash"]

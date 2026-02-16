@@ -1,1 +1,7 @@
 .env
+.vscode
+.devcontainer
+.idea
+build
+install
+log
