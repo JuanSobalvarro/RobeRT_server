@@ -1,11 +1,12 @@
 
 
 services:
-  ros:
+  robert:
     build: .
-    container_name: ros_dev
-    volumes:
-      - ./src:/app/src
+    container_name: robert
+    # network_mode: host
+    ports:
+      - "6510:6510/udp"
     stdin_open: true
     tty: true
     env_file:
