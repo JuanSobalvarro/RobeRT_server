@@ -23,7 +23,9 @@ RapidRequest create_rapid_request(const DecodedRequest& decoded)
 
     if (decoded.cmd_type == RapidCommandType::MOVE_L ||
         decoded.cmd_type == RapidCommandType::MOVE_J ||
-        decoded.cmd_type == RapidCommandType::MOVE_C)
+        decoded.cmd_type == RapidCommandType::MOVE_C ||
+        decoded.cmd_type == RapidCommandType::MOVE_L_OFFS ||
+        decoded.cmd_type == RapidCommandType::MOVE_J_OFFS)
     {
         if (decoded.target.has_value()) {
             msg.target = decoded.target->to_rapid();
@@ -107,6 +109,8 @@ RapidCommandType string_to_type(const std::string& cmd_str) {
     if (cmd_str == "LOGOUT")   return RapidCommandType::LOGOUT;
     if (cmd_str == "ACQUIRE")  return RapidCommandType::ACQUIRE;
     if (cmd_str == "RELEASE")  return RapidCommandType::RELEASE;
+    if (cmd_str == "MOVE_L_OFFS") return RapidCommandType::MOVE_L_OFFS;
+    if (cmd_str == "MOVE_J_OFFS") return RapidCommandType::MOVE_J_OFFS;
     return RapidCommandType::UNKNOWN;
 }
 
@@ -128,6 +132,8 @@ std::string type_to_string(RapidCommandType cmd_type) {
         case RapidCommandType::LOGOUT: return "LOGOUT";
         case RapidCommandType::ACQUIRE: return "ACQUIRE";
         case RapidCommandType::RELEASE: return "RELEASE";
+        case RapidCommandType::MOVE_L_OFFS: return "MOVE_L_OFFS";
+        case RapidCommandType::MOVE_J_OFFS: return "MOVE_J_OFFS";
         default: return "UNKNOWN";
     }
 }

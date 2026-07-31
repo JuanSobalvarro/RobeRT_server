@@ -41,6 +41,10 @@ RapidCommandType Decoder::proto_cmd_enum2rapid_cmd_enum(protocol::CommandType cm
         return RapidCommandType::ACQUIRE;
     case protocol::CommandType::RELEASE:
         return RapidCommandType::RELEASE;
+    case protocol::CommandType::MOVEL_OFFS:
+        return RapidCommandType::MOVE_L_OFFS;
+    case protocol::CommandType::MOVEJ_OFFS:
+        return RapidCommandType::MOVE_J_OFFS;
     default:
         return RapidCommandType::UNKNOWN;
     }

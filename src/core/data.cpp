@@ -24,6 +24,12 @@ RapidPosition RobPosition::to_rapid() const {
     return bin;
 }
 
+std::string RobPosition::to_string() const {
+    std::stringstream ss;
+    ss << "Pos: " << position_[0] << ", " << position_[1] << ", " << position_[2];
+    return ss.str();
+}
+
 // --- RobOrientation ---
 RobOrientation::RobOrientation(float q1, float q2, float q3, float q4)
     : orientation_{q1, q2, q3, q4} {}
@@ -42,6 +48,12 @@ RapidOrientation RobOrientation::to_rapid() const {
     std::memcpy(&bin.q3, &orientation_[2], 4);
     std::memcpy(&bin.q4, &orientation_[3], 4);
     return bin;
+}
+
+std::string RobOrientation::to_string() const {
+    std::stringstream ss;
+    ss << "Orient: " << orientation_[0] << ", " << orientation_[1] << ", " << orientation_[2] << ", " << orientation_[3];
+    return ss.str();
 }
 
 // --- RobConfigData ---
@@ -64,6 +76,12 @@ RapidConfData RobConfigData::to_rapid() const {
     return bin;
 }
 
+std::string RobConfigData::to_string() const {
+    std::stringstream ss;
+    ss << "Config: " << config_data_[0] << ", " << config_data_[1] << ", " << config_data_[2] << ", " << config_data_[3];
+    return ss.str();
+}
+
 RobJoint::RobJoint(float j1, float j2, float j3, float j4, float j5, float j6) : joints_{j1, j2, j3, j4, j5, j6} {}
 RobJoint::RobJoint(const RobJoint& other) : joints_(other.joints_) {}
 RobJoint::RobJoint() : joints_{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f} {}
@@ -78,6 +96,13 @@ RapidRobJoint RobJoint::to_rapid() const {
     std::memcpy(&bin.j6, &joints_[5], 4);
     return bin;
 }
+
+std::string RobJoint::to_string() const {
+    std::stringstream ss;
+    ss << "Joints: " << joints_[0] << ", " << joints_[1] << ", " << joints_[2] << ", " << joints_[3] << ", " << joints_[4] << ", " << joints_[5];
+    return ss.str();
+}
+
 void RobJoint::set_joints(float j1, float j2, float j3, float j4, float j5, float j6) {
     joints_ = {j1, j2, j3, j4, j5, j6};
 }
@@ -106,7 +131,10 @@ void JointTargetBridge::set_ext_joints(float ej1, float ej2, float ej3, float ej
 
 std::string JointTargetBridge::to_string() const {
     std::stringstream ss;
-    ss << "[JOINTTARGET] " << "Joints: " << "..." << " | Ext Joints: " << "...";
+    ss << "[JOINTTARGET] " << "Joints: " << "[" << joints_[0] << ", " << joints_[1] << ", " << joints_[2]
+        << ", " << joints_[3] << ", " << joints_[4] << ", " << joints_[5] << "]" << " | Ext Joints: "
+        << "[" << ext_joints_[0] << ", " << ext_joints_[1] << ", " << ext_joints_[2]
+        << ", " << ext_joints_[3] << ", " << ext_joints_[4] << ", " << ext_joints_[5] << "]";
     return ss.str();
 }
 
@@ -144,7 +172,7 @@ void RobTargetBridge::set_target(const RobPosition& position, const RobOrientati
 
 std::string RobTargetBridge::to_string() const {
     std::stringstream ss;
-    ss << "[ROBTARGET] " << "Pos: " << "..." << " | Ori: " << "...";
+    ss << "[ROBTARGET] " << this->position_.to_string() << " | " << this->orientation_.to_string() << " | " << this->config_data_.to_string() << " | " << this->ext_joint_.to_string();
     return ss.str();
 }
 

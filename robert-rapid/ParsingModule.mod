@@ -60,14 +60,14 @@ MODULE ParsingModule
         UnpackRawBytes raw_buffer, 13, parsed_target.trans.z \Float4;
 
         TPWrite "[PARSING] Position: " + ValToStr(parsed_target.trans);
-        
+
         ! robtarget orientation
         UnpackRawBytes raw_buffer, 17, parsed_target.rot.q1 \Float4;
         UnpackRawBytes raw_buffer, 21, parsed_target.rot.q2 \Float4;
         UnpackRawBytes raw_buffer, 25, parsed_target.rot.q3 \Float4;
         UnpackRawBytes raw_buffer, 29, parsed_target.rot.q4 \Float4;
 
-        ! robtarget configuration 
+        ! robtarget configuration
         UnpackRawBytes raw_buffer, 33, parsed_target.robconf.cf1 \IntX := DINT;
         UnpackRawBytes raw_buffer, 37, parsed_target.robconf.cf4 \IntX := DINT;
         UnpackRawBytes raw_buffer, 41, parsed_target.robconf.cf6 \IntX := DINT;
@@ -81,7 +81,7 @@ MODULE ParsingModule
         UnpackRawBytes raw_buffer, 65, parsed_target.extax.eax_e \Float4;
         UnpackRawBytes raw_buffer, 69, parsed_target.extax.eax_f \Float4;
 
-        IF command_str = "MoveJ" OR command_str = "MoveL" THEN
+        IF command_str = "MoveJ" OR command_str = "MoveL" OR command_str = "MoveLOffs" OR command_str = "MoveJOffs" THEN
             ! For MoveJ, we also need to parse the second target for the via point
             ExecuteAction command_str, \target_coords := parsed_target;
             RETURN;
@@ -135,7 +135,7 @@ MODULE ParsingModule
     ENDPROC
 
     FUNC bool is_move_command(string cmd)
-        IF cmd = "MoveJ" OR cmd = "MoveAbsJ" OR cmd = "MoveC" OR cmd = "MoveL" THEN
+        IF cmd = "MoveJ" OR cmd = "MoveAbsJ" OR cmd = "MoveC" OR cmd = "MoveL" OR cmd = "MoveLOffs" OR cmd = "MoveJOffs" THEN
             RETURN TRUE;
         ENDIF
 

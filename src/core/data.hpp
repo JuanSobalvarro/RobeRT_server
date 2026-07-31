@@ -95,6 +95,7 @@ public:
     ~RobPosition();
 
     RapidPosition to_rapid() const;
+    std::string to_string() const;
 
     void set_position(float x, float y, float z);
 private:
@@ -110,6 +111,7 @@ public:
     ~RobOrientation();
 
     RapidOrientation to_rapid() const;
+    std::string to_string() const;
 
     void set_orientation(float q1, float q2, float q3, float q4);
 private:
@@ -124,6 +126,7 @@ public:
     ~RobConfigData();
 
     RapidConfData to_rapid() const;
+    std::string to_string() const;
 
     void set_config_data(int cf1, int cf4, int cf6, unsigned int cfx);
 private:
@@ -138,6 +141,7 @@ public:
     ~RobJoint();
 
     RapidRobJoint to_rapid() const;
+    std::string to_string() const;
 
     void set_joints(float j1, float j2, float j3, float j4, float j5, float j6);
 

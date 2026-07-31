@@ -78,6 +78,8 @@ void SessionManager::sweep_expired_sessions(std::chrono::seconds timeout) {
     auto now = std::chrono::steady_clock::now();
     for (auto it = sessions_.begin(); it != sessions_.end(); ) {
         if (now - it->second.last_seen > timeout) {
+            // try to release if the user has the service locked
+            release_lock(it->first);
             it = sessions_.erase(it);
         } else {
             ++it;

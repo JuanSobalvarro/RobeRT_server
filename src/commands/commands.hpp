@@ -27,6 +27,8 @@ enum RapidCommandType : uint8_t // Explicitly 1 byte
     LOGOUT       = 0x0D,
     ACQUIRE      = 0x0E,
     RELEASE      = 0x0F,
+    MOVE_L_OFFS  = 0x10,
+    MOVE_J_OFFS  = 0x11,
     UNKNOWN      = 0xFF
 };
 
