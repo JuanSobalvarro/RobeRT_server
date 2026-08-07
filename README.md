@@ -23,3 +23,17 @@ Simply because we need separation of concerns even though we may have the same d
 
 # Remember IP
 In real life the IP should be the one the robot has configured, usually 192.168.125.1, but in simulation it should be the machine IP, 127.0.0.1 for local or another if virtualized
+
+# System failure
+I START then rev counter update
+
+# How to load/update robert-rapid
+1. File transfer robert-rapid whole folder
+2. Right Click on task and load module from controller
+3. Load all modules (except default.mod) and BASE.sys
+
+# How to start program
+1. Set controller in auto mode
+2. Set pointer to main
+3. Set MOTORS ON
+4. Run

@@ -167,17 +167,8 @@ MODULE OperationModule
         ENDTEST
 
     ERROR
-        IF ERRNO = ERR_SING_AREA THEN
-            TPWrite "[WARN] Singularity area reached. Skipping movement...";
-            SendResponse "NACK|SINGULARITY_SKIPPED";
-            
-            ! 1. Erase the problematic trajectory from the planner
-            ClearPath;
-            
-            ! 2. Skip the failed instruction and continue the program
-            TRYNEXT;
         ! Emergency fallback if an unexpected physical runtime exception still occurs
-        ELSEIF ERRNO = ERR_ROBLIMIT THEN
+        IF ERRNO = ERR_ROBLIMIT THEN
             TPWrite "Out of bounds movement, returning to ZERO";
             SendResponse "NACK|ERROR ON EXECUTION. Out of bounds movement, returning to ZERO";
         ELSE
@@ -190,6 +181,8 @@ MODULE OperationModule
         ! ALWAYS use 'fine' for emergency return moves to prevent socket/zone freezes
         MoveAbsJ ZERO, v100, fine, tool0;
         RestoPath;
+
+        TPWrite "Emergency return to zero";
 
         RETURN;
     ENDPROC
