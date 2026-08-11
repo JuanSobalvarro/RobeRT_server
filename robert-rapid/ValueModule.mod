@@ -17,7 +17,7 @@ MODULE ValueModule
                 RETURN z20;
             CASE 7:
                 RETURN z30;
-        ENDTEST 
+        ENDTEST
     ENDFUNC
 
     FUNC num zone_to_value(zonedata zone)
@@ -40,7 +40,7 @@ MODULE ValueModule
                 RETURN 7;
         ENDTEST
     ENDFUNC
-    
+
     FUNC string command_to_string(num cmd)
         TEST cmd
             CASE 0x00:
@@ -65,6 +65,10 @@ MODULE ValueModule
                 RETURN "ZERO";
             CASE 0x0A:
                 RETURN "GETSTATUS";
+            CASE 0x10:
+                RETURN "MoveLOffs";
+            CASE 0x11:
+                RETURN "MoveJOffs";
             DEFAULT:
                 RETURN "UNKNOWN";
         ENDTEST

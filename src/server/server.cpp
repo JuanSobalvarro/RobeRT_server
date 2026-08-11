@@ -234,6 +234,8 @@ void Server::robot_worker_loop_() {
 
 void Server::sweeper_loop_() {
     while (running_) {
+        std::cout << "[SWEEPER] Sweeping expired sessions" << std::endl;
+
         for (int i = 0; i < 5 && running_; i++) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
