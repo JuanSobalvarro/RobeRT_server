@@ -1,0 +1,9 @@
+robot:
+  name: "ABB_ULSA"
+  ip: "192.168.125.1"
+  port: 5000
+  timeout: 5000
+
+users:
+  - username: "uwunyaguy"
+    password: "uwunyanichan"

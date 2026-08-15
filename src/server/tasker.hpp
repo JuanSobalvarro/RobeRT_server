@@ -36,7 +36,8 @@ public:
     std::chrono::milliseconds getExecutionTime() const;
     const std::string& getResponse() const;
 
-
+    // remember that by default a task is considered expired when completed and after 5 min has passed
+    bool isExpired(std::chrono::seconds timeout = std::chrono::seconds(300)) const;
 private:
     task_id_t m_id;
     TaskState m_state;
@@ -62,6 +63,8 @@ public:
     bool failTask(task_id_t task_id);
 
     bool removeTask(task_id_t task_id);
+
+    void sweepExpiredTasks(std::chrono::seconds expiration_time = std::chrono::seconds(300));
 
     void wakeUpAll();
 

@@ -2,22 +2,36 @@
 #include "commands/commands.hpp"
 #include "commands/decoder.hpp"
 #include "protocol/protocol.pb.h"
+#include "robot/robot.hpp"
 #include "server/session.hpp"
 #include "zmq.hpp"
+#include "core/conf_parser.hpp"
 
-#include <future>
-#include <iostream>
-#include <fstream>
-
+// undefine ERROR macro to avoid conflicts with Windows API
+#ifdef _WIN32
+    #undef ERROR
+#endif
 
 namespace robert::server {
 
-Server::Server(const std::string& ip, int port)
+Server::Server(const std::string& ip, int port, const std::string& conf_filepath)
     : ip_(ip), port_(port), context_(1), socket_server_(context_, zmq::socket_type::rep), request_handler_(session_manager_, tasker_, robots_)
 {
     socket_server_.set(zmq::sockopt::rcvtimeo, 500);
     std::string address = "tcp://" + ip_ + ":" + std::to_string(port_);
     socket_server_.bind(address);
+
+    parser::Conf conf = parser::parse_conf(conf_filepath);
+
+    // load robot
+    robots_.push_back(std::make_unique<robot::Robot>(
+        conf.robot.ip,
+        conf.robot.port,
+        conf.robot.timeout
+    ));
+
+    // load users
+    session_manager_.load_users(conf.users);
 }
 
 Server::~Server()
@@ -87,42 +101,6 @@ void Server::stop()
 
 
     std::cout << "[MIDDLEWARE] Server stopped and all robot sessions closed." << std::endl;
-}
-
-void Server::load_robots_from_file(const std::string& filepath)
-{
-    std::ifstream file(filepath);
-    std::string line;
-
-    if (!file.is_open())
-    {
-        std::cerr << "[ERROR] Couldnt open robots config file at: " << filepath << std::endl;
-    }
-
-    while(std::getline(file, line))
-    {
-        // skip if empty or the first line with the headers
-        if (line.empty() || line[0] == '#')
-            continue;
-
-        std::stringstream ss(line);
-        std::string name, password, ip, port_str;
-
-        if (std::getline(ss, name, '|') &&
-            std::getline(ss, password, '|') &&
-            std::getline(ss, ip, '|') &&
-            std::getline(ss, port_str, '|'))
-        {
-            int port = std::stoi(port_str);
-            std::cout << "[Config] Adding robot: " << name << " at " << ip << ":" << port_str << std::endl;
-
-            robots_.push_back(std::make_unique<robot::Robot>(ip, port));
-        }
-    }
-}
-
-void Server::load_users_from_file(const std::string& filepath) {
-    session_manager_.load_users_from_file(filepath);
 }
 
 void Server::wait() {
@@ -234,7 +212,7 @@ void Server::robot_worker_loop_() {
 
 void Server::sweeper_loop_() {
     while (running_) {
-        std::cout << "[SWEEPER] Sweeping expired sessions" << std::endl;
+        std::cout << "[SWEEPER] Sweeping expired sessions and tasks" << std::endl;
 
         for (int i = 0; i < 5 && running_; i++) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -242,7 +220,9 @@ void Server::sweeper_loop_() {
 
         if (running_) {
             session_manager_.sweep_expired_sessions(std::chrono::seconds(60));
+            tasker_.sweepExpiredTasks(std::chrono::seconds(300));
         }
+
     }
 }
 

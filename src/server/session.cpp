@@ -1,36 +1,16 @@
 #include "session.hpp"
 
-#include <fstream>
 #include <mutex>
 #include <random>
-#include <sstream>
-#include <iostream>
 
 namespace robert::server {
 
-bool SessionManager::load_users_from_file(const std::string& filepath) {
-    std::ifstream file(filepath);
-    std::string line;
-
-    if (!file.is_open()) {
-        return false;
-    }
-
+bool SessionManager::load_users(const std::vector<parser::UserInfo>& users) {
     std::lock_guard<std::mutex> lock(mutex_);
     users_.clear();
-
-    while (std::getline(file, line)) {
-            if (line.empty() || line[0] == '#') continue;
-
-            std::stringstream ss(line);
-            std::string username, password;
-
-            if (std::getline(ss, username, '|') && std::getline(ss, password, '|')) {
-                users_[username] = password;
-                std::cout << "[SESSION] Registered user: " << username << std::endl;
-            }
-        }
-
+    for (const auto& user : users) {
+        users_[user.username] = user.password;
+    }
     return true;
 }
 

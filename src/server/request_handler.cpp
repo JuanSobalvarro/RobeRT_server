@@ -4,6 +4,11 @@
 #include "server/tasker.hpp"
 #include <iostream>
 
+// undefine ERROR macro to avoid conflicts with Windows API
+#ifdef _WIN32
+    #undef ERROR
+#endif
+
 namespace robert::server {
 
 RequestHandler::RequestHandler(SessionManager& session_manager, Tasker& tasker, const std::vector<std::unique_ptr<robot::Robot>>& robots)

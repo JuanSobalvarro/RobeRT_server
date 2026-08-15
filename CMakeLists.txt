@@ -38,6 +38,13 @@ FetchContent_Declare(
     GIT_TAG        v34.1
 )
 
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG        yaml-cpp-0.9.0
+)
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(ZMQ_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(WITH_PERF_TOOL OFF CACHE BOOL "" FORCE)
 set(ENABLE_CPACK OFF CACHE BOOL "" FORCE)
@@ -48,7 +55,7 @@ set(BUILD_SHARED OFF CACHE BOOL "Disable shared libzmq" FORCE)
 set(BUILD_STATIC ON CACHE BOOL "Enable static libzmq" FORCE)
 
 # download and available
-FetchContent_MakeAvailable(zmq cppzmq protobuf)
+FetchContent_MakeAvailable(zmq cppzmq protobuf yaml-cpp)
 find_package(Threads REQUIRED)
 
 set(PROTO_FILE
@@ -77,6 +84,7 @@ add_subdirectory(src/core)
 add_subdirectory(src/commands)
 add_subdirectory(src/robot)
 add_subdirectory(src/server)
+add_subdirectory(src/network)
 
 set(MAIN_SOURCES
     src/main.cpp
@@ -90,7 +98,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    core_lib
     server_lib
     protocol_lib
     robot_lib
+    network_lib
 )

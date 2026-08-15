@@ -21,22 +21,24 @@ void signal_handler(int signum)
 
 int main(int argc, char* argv[])
 {
-    if (argc != 3)
+    if (argc != 2)
     {
-        throw std::invalid_argument("Usage: program robots_conf_filepath users_filepath");
+        throw std::invalid_argument("Usage: program conf_filepath");
     }
 
     std::signal(SIGINT, signal_handler);
     std::signal(SIGTERM, signal_handler);
 
-    const std::string& robots_filepath = argv[1];
-    const std::string& users_filepath = argv[2];
+    const std::string& conf_filepath = argv[1];
 
-    std::cout << "RobertServer running with arguments: " << robots_filepath << " " << users_filepath << std::endl;
+    std::cout << "RobertServer running with arguments: " << conf_filepath << std::endl;
 
-    robert::server::Server server("*", 42069);
-    server.load_robots_from_file(robots_filepath);
-    server.load_users_from_file(users_filepath);
+    if (!robert::sock_comm::initialize()) {
+        std::cerr << "Failed to initialize sockets." << std::endl;
+        return 1;
+    }
+
+    robert::server::Server server("*", 42069, conf_filepath);
 
     server.start();
 
@@ -47,6 +49,8 @@ int main(int argc, char* argv[])
     }
 
     server.stop();
+
+    robert::sock_comm::cleanup();
 
     return 0;
 }

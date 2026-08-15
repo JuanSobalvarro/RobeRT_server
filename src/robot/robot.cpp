@@ -1,9 +1,7 @@
 #include "robot.hpp"
-#include "server/sock_comm.hpp"
 
 #include <iostream>
 #include <string>
-#include <winsock.h>
 
 namespace robert::robot {
 
@@ -12,13 +10,11 @@ Robot::Robot(const std::string& ip, int port, int timeout_ms)
 {
 }
 
-Robot::~Robot() noexcept
-{
+Robot::~Robot() noexcept {
     stop_session();
 }
 
-void Robot::start_session()
-{
+void Robot::start_session() {
     if (running_)
         return;
 
@@ -29,8 +25,7 @@ void Robot::start_session()
     worker_thread_ = std::thread(&Robot::worker_loop, this);
 }
 
-void Robot::stop_session()
-{
+void Robot::stop_session() {
     running_ = false;
     queue_cv_.notify_all();
 
@@ -39,10 +34,9 @@ void Robot::stop_session()
 
     std::lock_guard<std::mutex> lock(socket_mutex_);
 
-    if (socket_fd_ != -1)
-    {
+    if (socket_fd_ != INVALID_SOCKET_FD) {
         sock_comm::close_socket(socket_fd_);
-        socket_fd_ = -1;
+        socket_fd_ = INVALID_SOCKET_FD;
     }
 
     connected_ = false;
@@ -74,7 +68,7 @@ std::vector<uint8_t> Robot::send_and_receive(const commands::RapidRequest& reque
 {
     std::lock_guard<std::mutex> lock(socket_mutex_);
 
-    if (socket_fd_ == -1)
+    if (socket_fd_ == INVALID_SOCKET_FD)
         throw std::runtime_error("Robot session not active");
 
     if (!send_request(request))
@@ -93,7 +87,7 @@ bool Robot::send_request(const commands::RapidRequest& request)
         ssize_t bytes_sent = send(
             socket_fd_,
             data_ptr + total_sent,
-            sizeof(request) - total_sent,
+            static_cast<int>(sizeof(request) - total_sent),
             0
         );
 
@@ -117,8 +111,12 @@ std::vector<uint8_t> Robot::receive_buffer()
 
     sock_comm::set_timeouts(socket_fd_, socket_timeout_ms_);
 
-    const ssize_t bytes_received =
-        recv(socket_fd_, buffer, sizeof(buffer) - 1, 0);
+    const ssize_t bytes_received = recv(
+        socket_fd_,
+        buffer,
+        static_cast<int>(sizeof(buffer) - 1),
+        0
+    );
 
     if (bytes_received <= 0)
         throw std::runtime_error("Failed to receive response from robot");
@@ -129,16 +127,13 @@ std::vector<uint8_t> Robot::receive_buffer()
 bool Robot::attempt_connection() {
     std::lock_guard<std::mutex> lock(socket_mutex_);
 
-    if (socket_fd_ != -1)
+    if (socket_fd_ != INVALID_SOCKET_FD)
         return true;
 
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_fd_ < 0)
-        return false;
 
-    struct timeval timeout{};
-    timeout.tv_sec = socket_timeout_ms_ / 1000;
-    timeout.tv_usec = (socket_timeout_ms_ % 1000) * 1000;
+    if (socket_fd_ == INVALID_SOCKET_FD)
+        return false;
 
     sock_comm::set_timeouts(socket_fd_, socket_timeout_ms_);
 
@@ -146,20 +141,18 @@ bool Robot::attempt_connection() {
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port_);
 
-    if (inet_pton(AF_INET, ip_.c_str(), &server_addr.sin_addr) <= 0)
-    {
+    if (inet_pton(AF_INET, ip_.c_str(), &server_addr.sin_addr) <= 0) {
         sock_comm::close_socket(socket_fd_);
-        socket_fd_ = -1;
+        socket_fd_ = INVALID_SOCKET_FD;
         return false;
     }
 
     std::cout << "[ROBOT] Attempting connection to "
               << ip_ << ":" << port_ << "..." << std::endl;
 
-    if (connect(socket_fd_, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
-    {
+    if (connect(socket_fd_, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         sock_comm::close_socket(socket_fd_);
-        socket_fd_ = -1;
+        socket_fd_ = INVALID_SOCKET_FD;
         return false;
     }
 
@@ -235,10 +228,10 @@ void Robot::worker_loop() {
             {
                 std::lock_guard<std::mutex> lock(socket_mutex_);
 
-                if (socket_fd_ != -1)
+                if (socket_fd_ != INVALID_SOCKET_FD)
                 {
                     sock_comm::close_socket(socket_fd_);
-                    socket_fd_ = -1;
+                    socket_fd_ = INVALID_SOCKET_FD;
                 }
 
                 connected_ = false;
@@ -254,4 +247,4 @@ void Robot::worker_loop() {
               << ip_ << ":" << port_ << std::endl;
 }
 
-} // namespace robert
+} // namespace robert::robot

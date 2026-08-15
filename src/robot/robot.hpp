@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "commands/commands.hpp"
+#include "network/sock_comm.hpp"
 
 namespace robert::robot {
 
@@ -41,7 +42,7 @@ private:
     int port_;
 
     // socket owned by Robot
-    int socket_fd_{-1};
+    socket_t socket_fd_{INVALID_SOCKET_FD};
     int socket_timeout_ms_{35000}; // 35 seconds timeout for send/recv
 
     // worker thread

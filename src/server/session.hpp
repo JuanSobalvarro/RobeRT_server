@@ -6,6 +6,8 @@
 #include <optional>
 #include <mutex>
 
+#include "core/conf_parser.hpp"
+
 
 namespace robert::server {
 
@@ -19,7 +21,7 @@ class SessionManager {
 public:
     SessionManager() = default;
 
-    bool load_users_from_file(const std::string& filepath);
+    bool load_users(const std::vector<parser::UserInfo>& users);
 
     std::optional<std::string> login(const std::string& username, const std::string& password);
     void logout(const std::string& token);

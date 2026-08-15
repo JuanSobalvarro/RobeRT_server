@@ -1,6 +1,5 @@
 add_library(server_lib STATIC
     server.cpp
-    sock_comm.cpp
     tasker.cpp
     session.cpp
     request_handler.cpp
@@ -15,6 +14,7 @@ target_link_libraries(server_lib PUBLIC
     cppzmq-static
     core_lib
     commands_lib
+    network_lib
     protocol_lib
     Threads::Threads
 )

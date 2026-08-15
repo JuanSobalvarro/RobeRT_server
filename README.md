@@ -21,19 +21,8 @@ New-NetFirewallRule -DisplayName "RobeRT-RobotStudio-In" -Direction Inbound -Act
 - Why separate rapid data types from proto types?
 Simply because we need separation of concerns even though we may have the same data duplicated in both. The rapid structures are for binary data transmission, while the proto structures are for api serialization of messages between a user client and the middleware server. This separation allows us to optimize each for its specific use case without one affecting the other. For example, we can change the proto structures for better API design without worrying about breaking the binary communication, and vice versa.
 
-# Remember IP
-In real life the IP should be the one the robot has configured, usually 192.168.125.1, but in simulation it should be the machine IP, 127.0.0.1 for local or another if virtualized
+# docker build
+docker build -t robert-middleware:1.0 .
 
-# System failure
-I START then rev counter update
-
-# How to load/update robert-rapid
-1. File transfer robert-rapid whole folder
-2. Right Click on task and load module from controller
-3. Load all modules (except default.mod) and BASE.sys
-
-# How to start program
-1. Set controller in auto mode
-2. Set pointer to main
-3. Set MOTORS ON
-4. Run
+# docker run
+docker run -d --name robert-middleware -p 42069:42069 robert-middleware:1.0

@@ -17,14 +17,11 @@ namespace robert::server
 class Server
 {
 public:
-    Server(const std::string& ip, int port);
+    Server(const std::string& ip, int port, const std::string& conf_filepath);
     ~Server();
 
     void start();
     void stop();
-
-    void load_robots_from_file(const std::string& filepath);
-    void load_users_from_file(const std::string& filepath);
 
     void wait();
 

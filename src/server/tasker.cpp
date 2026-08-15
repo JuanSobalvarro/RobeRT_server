@@ -78,6 +78,16 @@ const std::string& Task::getResponse() const {
     return m_response;
 }
 
+bool Task::isExpired(std::chrono::seconds timeout) const {
+    if (m_state == TaskState::PENDING || m_state == TaskState::IN_PROGRESS) {
+        return false;
+    }
+
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_end_time);
+    return elapsed >= timeout;
+}
+
 // tasker
 
 task_id_t Tasker::addTask(const commands::RapidRequest& request) {
@@ -162,6 +172,18 @@ bool Tasker::removeTask(task_id_t task_id) {
 
     m_task_map.erase(it);
     return true;
+}
+
+void Tasker::sweepExpiredTasks(std::chrono::seconds expiration_time) {
+    std::unique_lock map_lock(m_map_mutex);
+
+    for (auto it = m_task_map.begin(); it != m_task_map.end(); ) {
+        if (it->second.isExpired()) {
+            it = m_task_map.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void Tasker::wakeUpAll() {
