@@ -22,13 +22,25 @@ clean:
 [group('run')]
 run:
     @echo "Running RobeRT..."
-    @./build/robert_server.exe ./config.yaml
+    @./build/robert_server.exe ./config/config.yaml
     @echo "RobeRT stopped."
 
 [group('run')]
+docker_create:
+    @echo "Cleaning, creating and running Docker container..."
+    -just docker_clean
+    docker run --name robert-middleware --network host -v "{{justfile_directory()}}/config/config.yaml:/app/config/config.yaml" robert-middleware:1.0
+
+[group('run')]
 docker_run:
-    @echo "Running Docker container..."
-    docker run --network host -v ./config/config.yaml:/app/config/config.yaml robert-middleware:1.0
+    @echo "Starting Docker container..."
+    docker start robert-middleware
+
+[group('clean')]
+docker_clean:
+    @echo "Stopping and removing Docker container..."
+    -docker stop robert-middleware
+    -docker rm robert-middleware
 
 build_run:
     just build

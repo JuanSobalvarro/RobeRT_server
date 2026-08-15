@@ -2,11 +2,34 @@ MODULE OperationModule
     VAR robtarget tempRobTarget;
     VAR jointtarget tempJointTarget;
 
+    FUNC bool IsInWorkspace(robtarget target)
+        ! Check X boundaries
+        IF target.trans.x < corner_min.x OR target.trans.x > corner_max.x THEN
+            RETURN FALSE;
+        ENDIF
+        ! Check Y boundaries
+        IF target.trans.y < corner_min.y OR target.trans.y > corner_max.y THEN
+            RETURN FALSE;
+        ENDIF
+        ! Check Z boundaries
+        IF target.trans.z < corner_min.z OR target.trans.z > corner_max.z THEN
+            RETURN FALSE;
+        ENDIF
+
+        RETURN TRUE;
+    ENDFUNC
+
     FUNC bool IsSafeTarget(\robtarget rtarget, \jointtarget jtarget)
         VAR jointtarget test_joints;
         VAR robtarget test_robtarget;
 
         IF (Present(rtarget)) THEN
+            ! Soft limit check
+            IF NOT IsInWorkspace(rtarget) THEN
+                TPWrite "PRE-CHECK: Target outside software workspace limits!";
+                RETURN FALSE;
+            ENDIF
+
             ! If checking a Cartesian target, convert to joints
             test_joints := CalcJointT(rtarget, tool0 \WObj:=wobj0);
         ENDIF
@@ -14,6 +37,12 @@ MODULE OperationModule
         IF (Present(jtarget)) THEN
             ! If checking a Joint target, convert to Cartesian
             test_robtarget := CalcRobT(jtarget, tool0 \WObj:=wobj0);
+
+            ! soft limit check
+            IF NOT IsInWorkspace(test_robtarget) THEN
+                TPWrite "PRE-CHECK: Joint target results in out-of-bounds position!";
+                RETURN FALSE;
+            ENDIF
         ENDIF
 
         RETURN TRUE;
@@ -21,7 +50,6 @@ MODULE OperationModule
         ! Catch unreachable coordinates or singularities safely without moving
         IF ERRNO = ERR_ROBLIMIT THEN
             TPWrite "PRE-CHECK WARNING: Target unreachable or singular!";
-            RETURN FALSE;
         ENDIF
         RETURN FALSE;
     ENDFUNC
@@ -169,18 +197,19 @@ MODULE OperationModule
     ERROR
         ! Emergency fallback if an unexpected physical runtime exception still occurs
         IF ERRNO = ERR_ROBLIMIT THEN
-            TPWrite "Out of bounds movement, returning to ZERO";
-            SendResponse "NACK|ERROR ON EXECUTION. Out of bounds movement, returning to ZERO";
+            TPWrite "Execution Error: Robot kinematic limit reached.";
+            SendResponse "NACK|ERROR ON EXECUTION: Kinematic limit reached.";
         ELSE
-            TPWrite "IDK what occurred, returning to ZERO";
-            SendResponse "NACK|ERROR ON EXECUTION.";
+            TPWrite "Unexpected Execution Error! ERRNO: " + NumToStr(ERRNO, 0);
+            SendResponse "NACK|ERROR ON EXECUTION: Manual intervention required.";
         ENDIF
 
         ClearPath;
-        StorePath;
+        !StorePath;
         ! ALWAYS use 'fine' for emergency return moves to prevent socket/zone freezes
-        MoveAbsJ ZERO, v100, fine, tool0;
-        RestoPath;
+        ! MoveAbsJ ZERO, v100, fine, tool0;
+        ! do not move, it should be manually handled
+        !RestoPath;
 
         TPWrite "Emergency return to zero";
 

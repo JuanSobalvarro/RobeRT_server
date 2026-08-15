@@ -29,8 +29,6 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=builder /tmp/robert_server .
 
-RUN mkdir -p config
-
 EXPOSE 42069
 
-ENTRYPOINT [ "./robert_server", "config/config.yaml" ]
+ENTRYPOINT [ "./robert_server", "config/config.yaml"]
