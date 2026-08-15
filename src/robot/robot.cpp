@@ -4,9 +4,8 @@
 #include <string>
 
 namespace robert::robot {
-
-Robot::Robot(const std::string& ip, int port, int timeout_ms)
-    : ip_(ip), port_(port), socket_timeout_ms_(timeout_ms)
+Robot::Robot(const std::string& host, int port, int timeout_ms)
+    : host_(host), port_(port), socket_timeout_ms_(timeout_ms)
 {
 }
 
@@ -19,7 +18,7 @@ void Robot::start_session() {
         return;
 
     std::cout << "[ROBOT] Starting thread for Robot at "
-              << ip_ << ":" << port_ << std::endl;
+              << host_ << ":" << port_ << std::endl;
 
     running_ = true;
     worker_thread_ = std::thread(&Robot::worker_loop, this);
@@ -130,31 +129,13 @@ bool Robot::attempt_connection() {
     if (socket_fd_ != INVALID_SOCKET_FD)
         return true;
 
-    socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    std::cout << "[ROBOT] Attempting connection to "
+                  << host_ << ":" << port_ << "..." << std::endl;
+
+    socket_fd_ = sock_comm::connect_tcp(host_, port_, socket_timeout_ms_);
 
     if (socket_fd_ == INVALID_SOCKET_FD)
         return false;
-
-    sock_comm::set_timeouts(socket_fd_, socket_timeout_ms_);
-
-    struct sockaddr_in server_addr{};
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port_);
-
-    if (inet_pton(AF_INET, ip_.c_str(), &server_addr.sin_addr) <= 0) {
-        sock_comm::close_socket(socket_fd_);
-        socket_fd_ = INVALID_SOCKET_FD;
-        return false;
-    }
-
-    std::cout << "[ROBOT] Attempting connection to "
-              << ip_ << ":" << port_ << "..." << std::endl;
-
-    if (connect(socket_fd_, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        sock_comm::close_socket(socket_fd_);
-        socket_fd_ = INVALID_SOCKET_FD;
-        return false;
-    }
 
     connected_ = true;
 
@@ -163,13 +144,13 @@ bool Robot::attempt_connection() {
 
 void Robot::worker_loop() {
     std::cout << "[ROBOT::WORKER] Worker thread started for Robot at "
-              << ip_ << ":" << port_ << std::endl;
+              << host_ << ":" << port_ << std::endl;
 
     while (running_) {
         if (!connected_) {
             if (attempt_connection()) {
                 std::cout << "[ROBOT::WORKER] Connected to "
-                          << ip_ << ":" << port_ << std::endl;
+                          << host_ << ":" << port_ << std::endl;
             }
             else {
                 std::cout << "[ROBOT::WORKER] Connection failed, retrying in 5 seconds..."
@@ -244,7 +225,7 @@ void Robot::worker_loop() {
     }
 
     std::cout << "[ROBOT::WORKER] Worker thread exiting for Robot at "
-              << ip_ << ":" << port_ << std::endl;
+              << host_ << ":" << port_ << std::endl;
 }
 
 } // namespace robert::robot

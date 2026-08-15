@@ -12,31 +12,38 @@
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
+    #include <netdb.h>
     using socket_t = int;
     constexpr socket_t INVALID_SOCKET_FD = -1;
 #endif
 
+#include <string>
+
 namespace robert::sock_comm {
 
 /**
- * @brief Initialize the socket subsystem (Required for Windows WSAStartup)
- * @return true if successful, false otherwise
+ * Initialize the socket subsystem (Required for Windows WSAStartup)
+ * true if successful, false otherwise
  */
 bool initialize();
 
 /**
- * @brief Cleanup the socket subsystem (Required for Windows WSACleanup)
+ * Cleanup the socket subsystem (Required for Windows WSACleanup)
  */
 void cleanup();
 
 /**
- * @brief Cross-platform socket close
+ * Cross-platform socket close
  */
 void close_socket(socket_t fd);
 
 /**
- * @brief Safely set both send and receive timeouts for a socket
+ * Safely set both send and receive timeouts for a socket
  */
 bool set_timeouts(socket_t fd, int timeout_ms);
+
+socket_t connect_tcp(const std::string& host, int port, int timeout_ms);
+
+std::string resolve_host(const std::string& host);
 
 } // namespace robert::sock_comm

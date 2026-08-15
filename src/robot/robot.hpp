@@ -15,7 +15,7 @@ struct RobotWorkItem {
 
 class Robot {
 public:
-    Robot(const std::string& ip, int port, int timeout_ms = 5000);
+    Robot(const std::string& host, int port, int timeout_ms = 5000);
     ~Robot() noexcept;
 
     Robot(const Robot&) = delete;
@@ -38,7 +38,7 @@ private:
 
     bool attempt_connection();
 
-    std::string ip_;
+    std::string host_;
     int port_;
 
     // socket owned by Robot
