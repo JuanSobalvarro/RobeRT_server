@@ -9,23 +9,23 @@ MODULE MainModule
 
     ! workspace limits defined by corner positions (vectors essentially), this should be manually adjusted in rapid based on the robot's workspace
     ! for security reasons
-    VAR pos corner_min := [-500, -500, 600];
-    VAR pos corner_max := [500, 500, 400];
+    VAR pos corner_min := [450, -600, 450];
+    VAR pos corner_max := [750, 600, 800];
 
     VAR shapedata workspace_volume;
-    VAR wzstationary wz_workspace_limit;
+    VAR wztemporary wz_workspace_limit;
 
     PROC InitializeWorkspaceLimit()
         WZBoxDef \Outside, workspace_volume, corner_min, corner_max;
-        WZLimSup \Stat, wz_workspace_limit, workspace_volume;
+        WZLimSup \Temp, wz_workspace_limit, workspace_volume;
         TPWrite "Workspace limit initialized.";
     ENDPROC
 
     PROC main()
         TPWrite "Initiating at origin...";
-        MoveAbsJ ZERO, v100, fine, tool0;
-
         InitializeWorkspaceLimit;
+
+        MoveAbsJ ZERO, v100, fine, tool0;
 
         SocketServerTask;
     ENDPROC

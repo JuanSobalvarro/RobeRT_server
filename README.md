@@ -26,3 +26,9 @@ docker build -t robert-middleware:1.0 .
 
 # docker run
 docker run -d --name robert-middleware -p 42069:42069 robert-middleware:1.0
+
+# Safety and robot reach
+It is important to know that the robot reach is limited by two main factors:
+- Physical workspace limits
+- Kinematic limits
+These means that the robot cannot reach any point outside of its sphere/torus reach, and also a point that essentially is inside the workspace but kinematically unreachable.
