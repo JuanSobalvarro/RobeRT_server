@@ -39,10 +39,10 @@ MODULE OperationModule
             test_robtarget := CalcRobT(jtarget, tool0 \WObj:=wobj0);
 
             ! soft limit check
-            IF NOT IsInWorkspace(test_robtarget) THEN
-                TPWrite "PRE-CHECK: Joint target results in out-of-bounds position!";
-                RETURN FALSE;
-            ENDIF
+            !IF NOT IsInWorkspace(test_robtarget) THEN
+                !TPWrite "PRE-CHECK: Joint target results in out-of-bounds position!";
+                !RETURN FALSE;
+            !ENDIF
         ENDIF
 
         RETURN TRUE;
@@ -199,9 +199,8 @@ MODULE OperationModule
         IF ERRNO = ERR_ROBLIMIT THEN
             TPWrite "Execution Error: Robot kinematic limit reached.";
             SendResponse "NACK|ERROR ON EXECUTION: Kinematic limit reached.";
-        ELSE
-            TPWrite "Unexpected Execution Error! ERRNO: " + NumToStr(ERRNO, 0);
-            SendResponse "NACK|ERROR ON EXECUTION: Manual intervention required.";
+        ELSEIF ERRNO = ERR_CONC_MAX THEN
+            SendResponse "NACK|ERROR TOO MANY INSTRUCTIONS (CONC)";
         ENDIF
 
         ClearPath;
@@ -211,8 +210,7 @@ MODULE OperationModule
         ! do not move, it should be manually handled
         !RestoPath;
 
-        TPWrite "Emergency return to zero";
-
+        SendResponse "NACK|ERROR ON EXECUTION: " + NumToStr(ERRNO, 0);
         RETURN;
     ENDPROC
 ENDMODULE

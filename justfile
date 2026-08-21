@@ -29,7 +29,7 @@ run:
 docker_create:
     @echo "Cleaning, creating and running Docker container..."
     -just docker_clean
-    docker run --name robert-middleware --network host -v "{{justfile_directory()}}/config/config.yaml:/app/config/config.yaml" robert-middleware:1.0
+    docker run --name robert-middleware -p 42069:42069 -v "{{justfile_directory()}}/config/config.yaml:/app/config/config.yaml" robert-middleware:1.0
 
 [group('run')]
 docker_run:

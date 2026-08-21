@@ -22,14 +22,13 @@ bool Task::markStarted() {
     return true;
 }
 
-bool Task::markCompleted(const std::string& response) {
+bool Task::markCompleted() {
     if (m_state != TaskState::IN_PROGRESS) {
         return false;
     }
 
     m_state = TaskState::COMPLETED;
     m_end_time = std::chrono::steady_clock::now();
-    m_response = response;
 
     return true;
 }
@@ -42,6 +41,11 @@ bool Task::markFailed() {
     m_state = TaskState::FAILED;
     m_end_time = std::chrono::steady_clock::now();
 
+    return true;
+}
+
+bool Task::setResponse(const std::string& response) {
+    m_response = response;
     return true;
 }
 
@@ -142,12 +146,13 @@ bool Tasker::completeTask(task_id_t task_id, const std::string& response) {
     }
 
     Task& task = it->second;
-    task.markCompleted(response);
+    task.markCompleted();
+    task.setResponse(response);
 
     return true;
 }
 
-bool Tasker::failTask(task_id_t task_id) {
+bool Tasker::failTask(task_id_t task_id, const std::string& response) {
     std::unique_lock map_lock(m_map_mutex);
 
     auto it = m_task_map.find(task_id);
@@ -157,6 +162,7 @@ bool Tasker::failTask(task_id_t task_id) {
 
     Task& task = it->second;
     task.markFailed();
+    task.setResponse(response);
 
     return true;
 }

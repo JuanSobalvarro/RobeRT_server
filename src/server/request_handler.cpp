@@ -86,7 +86,7 @@ bool RequestHandler::validate_token(const commands::DecodedRequest& request) con
         return true;
     }
 
-    return session_manager_.is_valid_token(request.session_token.value_or(""));
+    return false;
 }
 
 bool RequestHandler::validate_hardware_lock(const commands::DecodedRequest& request) const {
@@ -217,7 +217,8 @@ void RequestHandler::handle_check_task(const commands::DecodedRequest& req, prot
     else {
         res.set_status(protocol::ResponseStatus::SUCCESS);
         res.set_task_status(protocol::TaskStatus::TASK_FAILED);
-        res.set_error_message("Task execution failed at robot controller");
+        res.set_error_message(message.empty() ? "Task execution failed at robot controller" : message);
+        tasker_.removeTask(id);
     }
 }
 

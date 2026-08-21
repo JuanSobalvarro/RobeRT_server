@@ -79,23 +79,19 @@ void Server::stop()
 
     tasker_.stop();
 
-    for (auto& robot : robots_)
-    {
+    for (auto& robot : robots_) {
         robot->stop_session();
     }
 
-    if (server_thread_.joinable())
-    {
+    if (server_thread_.joinable()) {
         server_thread_.join();
     }
 
-    if (robot_worker_thread_.joinable())
-    {
+    if (robot_worker_thread_.joinable()) {
         robot_worker_thread_.join();
     }
 
-    if (sweeper_thread_.joinable())
-    {
+    if (sweeper_thread_.joinable()) {
         sweeper_thread_.join();
     }
 
@@ -182,12 +178,14 @@ void Server::robot_worker_loop_() {
         std::cout << "[SERVER_WORKER] Task with id " << task_id << " in operation" << std::endl;
 
         // once we got the task then we start it
-        if (!tasker_.startTask(task_id)) continue;
+        if (!tasker_.startTask(task_id))
+            continue;
 
         // safely get the payload
         auto task = tasker_.getTask(task_id);
 
-        if (!task) continue;
+        if (!task)
+            continue;
 
         const commands::RapidRequest& req = task->getRequest();
 
@@ -199,12 +197,16 @@ void Server::robot_worker_loop_() {
                 std::vector<uint8_t> raw_response = future_ack.get();
                 std::string response(raw_response.begin(), raw_response.end());
 
-                tasker_.completeTask(task_id, response);
+                if (response.find("ERR:") == 0 || response.find("NACK") == 0) {
+                    tasker_.failTask(task_id, "Robot error: " + response);
+                } else {
+                    tasker_.completeTask(task_id, response);
+                }
             } else {
-                tasker_.failTask(task_id); // Timeout
+                tasker_.failTask(task_id, "Timeout exceeded"); // Timeout
             }
         } else {
-            tasker_.failTask(task_id); // Robot disconnected
+            tasker_.failTask(task_id, "Robot disconnected"); // Robot disconnected
         }
     }
     std::cout << "[SERVER_WORKER] Ended loop worker" << std::endl;

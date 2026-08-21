@@ -26,8 +26,10 @@ public:
     explicit Task(task_id_t id, const commands::RapidRequest& request);
 
     bool markStarted();
-    bool markCompleted(const std::string& response);
+    bool markCompleted();
     bool markFailed();
+
+    bool setResponse(const std::string& response);
 
     task_id_t getTaskId() const;
     TaskState getState() const;
@@ -60,7 +62,7 @@ public:
 
     bool startTask(task_id_t task_id);
     bool completeTask(task_id_t task_id, const std::string& response);
-    bool failTask(task_id_t task_id);
+    bool failTask(task_id_t task_id, const std::string& response);
 
     bool removeTask(task_id_t task_id);
 

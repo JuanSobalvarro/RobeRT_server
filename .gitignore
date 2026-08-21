@@ -16,3 +16,4 @@ src/protocol/*.pb.cc
 build/
 __cmake*
 .cache
+backups
