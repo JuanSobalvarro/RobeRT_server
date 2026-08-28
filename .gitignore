@@ -17,3 +17,5 @@ build/
 __cmake*
 .cache
 backups
+ROBOTWARE*
+system*
