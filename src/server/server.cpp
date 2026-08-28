@@ -114,7 +114,7 @@ void Server::loop_()
     while(running_)
     {
         zmq::message_t request;
-        std::cout << "[SERVER] Loop waiting for recv" << std::endl;
+        // std::cout << "[SERVER] Loop waiting for recv" << std::endl;
         // remember that recv is thread blocking
         zmq::recv_result_t res = socket_server_.recv(request, zmq::recv_flags::none);
 

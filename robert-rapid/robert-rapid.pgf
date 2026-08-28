@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<Program>
+	<Module>ValueModule.mod</Module>
+	<Module>TelemetryModule.mod</Module>
+	<Module>ServerModule.mod</Module>
+	<Module>ParsingModule.mod</Module>
+	<Module>OperationModule.mod</Module>
+	<Module>MainModule.mod</Module>
+</Program>
