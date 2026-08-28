@@ -199,8 +199,6 @@ MODULE OperationModule
         IF ERRNO = ERR_ROBLIMIT THEN
             TPWrite "Execution Error: Robot kinematic limit reached.";
             SendResponse "NACK|ERROR ON EXECUTION: Kinematic limit reached.";
-        ELSEIF ERRNO = ERR_CONC_MAX THEN
-            SendResponse "NACK|ERROR TOO MANY INSTRUCTIONS (CONC)";
         ENDIF
 
         ClearPath;
